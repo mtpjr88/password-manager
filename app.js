@@ -1,5 +1,5 @@
 console.log('STARTING PASSWAORD MANAGER');
-
+var crypto = require('crypto-js');
 var storage = require('node-persist'); // require is a node js function lets you access a module installed
 storage.initSync();
 
@@ -55,30 +55,40 @@ var command = argv._[0];
 
 function getAccounts(masterPassword){
 	// use getItemSync to fetch accounts
+	var encryptedAccount = storage.getItemSync('accounts');
+	var accounts = [];
+
 	// decrypt
+	if (typeof encryptedAccount !== 'undefined'){
+	var bytes = crypto.AES.decrypt(encryptedAccount, masterPassword);
+	var account = JSON.parse(bytes.toString(crypto.enc.Utf8));
+}
 	// return accounts array
+	return accounts;
 }
 
 function saveAccounts (accounts, masterPassword){
 	// encrypt accounts
+	var encryptedAccounts = crypto.AES.encrypt(JSON.stingify(accounts), masterPassword);
 	// setItemSync
+	storage.setItemSync('accounts', encryptedAccounts);
 	// return accounts
+	return accounts;
 }
 
-function createAccount(account) {
-	var accounts = storage.getItemSync('accounts');
+function createAccount(account,masterPassword) {
+	var accounts = getAccounts(masterPassword);
 
-	if(typeof accounts === 'undefined'){
-		accounts = [];
-	}
 	accounts.push(account);
-	storage.setItemSync('accounts', accounts);
+
+	saveAccounts(accounts, masterPassword)
 
 	return account;
 }
 
 function getAccount(accountName,masterPassword) {
-	var accounts = storage.getItemSync('accounts');
+	var accounts = getAccounts(masterPassword)
+
 	var matchedAccount;
 
 	accounts.forEach(function(account){
