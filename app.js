@@ -33,7 +33,7 @@ var argv = require('yargs')
 		}).help('help');
 	})
 	.command('get', 'Get an existing account', function (yargs) {
-		yargs,options({
+		yargs.options({
 			name: {
 				demand: true,
 				alias: 'n',
@@ -61,7 +61,7 @@ function getAccounts(masterPassword){
 	// decrypt
 	if (typeof encryptedAccount !== 'undefined'){
 	var bytes = crypto.AES.decrypt(encryptedAccount, masterPassword);
-	var account = JSON.parse(bytes.toString(crypto.enc.Utf8));
+	var accounts = JSON.parse(bytes.toString(crypto.enc.Utf8));
 }
 	// return accounts array
 	return accounts;
@@ -69,11 +69,12 @@ function getAccounts(masterPassword){
 
 function saveAccounts (accounts, masterPassword){
 	// encrypt accounts
-	var encryptedAccounts = crypto.AES.encrypt(JSON.stingify(accounts), masterPassword);
+	var encryptedAccounts = crypto.AES.encrypt(JSON.stringify(accounts), masterPassword);
 	// setItemSync
-	storage.setItemSync('accounts', encryptedAccounts);
+	storage.setItemSync('accounts', encryptedAccounts.toString());
 	// return accounts
 	return accounts;
+	
 }
 
 function createAccount(account,masterPassword) {
