@@ -1,10 +1,9 @@
-console.log('STARTING PASSWAORD MANAGER');
-var crypto = require('crypto-js');
-var storage = require('node-persist'); // require is a node js function lets you access a module installed
-storage.initSync();
+console.log('\n\n============================\n      PASSWORD MANAGER      \n============================\n');
+const crypto = require('crypto-js');
+const storage = require('node-persist').initSync();
 
-var argv = require('yargs')
-	.command('create', 'create a new account', function(yargs) {
+const argv = require('yargs')
+	.command('create', 'create a new account', (yargs) => {
 		yargs.options({
 			name: {
 				demand: true,
@@ -32,7 +31,7 @@ var argv = require('yargs')
 			}
 		}).help('help');
 	})
-	.command('get', 'Get an existing account', function (yargs) {
+	.command('get', 'Get an existing account', (yargs) => {
 		yargs.options({
 			name: {
 				demand: true,
@@ -49,36 +48,35 @@ var argv = require('yargs')
 		}).help('help');
 	})
 	.help('help')	
-	.argv;
-var command = argv._[0];
+  .argv;
 
+const command = argv._[0];
 
-function getAccounts(masterPassword){
+function decryptAccounts(masterPassword) {
 	// use getItemSync to fetch accounts
-	var encryptedAccount = storage.getItemSync('accounts');
-	var accounts = [];
+  const encryptedAccount = storage.getItemSync('accounts');
+	let accounts = [];
 
 	// decrypt
-	if (typeof encryptedAccount !== 'undefined'){
-	var bytes = crypto.AES.decrypt(encryptedAccount, masterPassword);
-	var accounts = JSON.parse(bytes.toString(crypto.enc.Utf8));
-}
+	if (typeof encryptedAccount !== 'undefined') {
+    const bytes = crypto.AES.decrypt(encryptedAccount, masterPassword);
+    accounts = JSON.parse(bytes.toString(crypto.enc.Utf8));
+  }
 	// return accounts array
 	return accounts;
 }
 
-function saveAccounts (accounts, masterPassword){
+function saveAccounts (accounts, masterPassword) {
 	// encrypt accounts
-	var encryptedAccounts = crypto.AES.encrypt(JSON.stringify(accounts), masterPassword);
+	const encryptedAccounts = crypto.AES.encrypt(JSON.stringify(accounts), masterPassword);
 	// setItemSync
 	storage.setItemSync('accounts', encryptedAccounts.toString());
 	// return accounts
 	return accounts;
-	
 }
 
-function createAccount(account,masterPassword) {
-	var accounts = getAccounts(masterPassword);
+function createAccount(account, masterPassword) {
+  const accounts = getAccounts(masterPassword);
 
 	accounts.push(account);
 
@@ -87,51 +85,39 @@ function createAccount(account,masterPassword) {
 	return account;
 }
 
-function getAccount(accountName,masterPassword) {
-	var accounts = getAccounts(masterPassword)
+function getAccounts(accountName, masterPassword) {
+  const accounts = decryptAccounts(masterPassword);
 
-	var matchedAccount;
+  const matchedAccount = accounts.filter(account => account.name === accountName);
 
-	accounts.forEach(function(account){
-		if (account.name === accountName){
-			matchedAccount = account;
-		}
-	});
 	return matchedAccount;
 }
 
-if (command === 'create'){
+if (command === 'create') {
 	try {
-	var createdAccount = createAccount({
-		name: argv.name,
-		username: argv.username,
-		password: argv.password
-	},argv.masterPassword);
-		console.log('Account created!');
-		console.log(createdAccount);
-} catch (e){
-	console.log('Unable to create account!');
+    const createdAccount = createAccount({
+        name: argv.name,
+        username: argv.username,
+        password: argv.password
+      }, argv.masterPassword);
+      console.log('Account created!\n');
+  } catch (e){
+    console.log('Unable to create account!\n');
+  }
+} else if (command === 'get') {
+  try {
+    const fetchedAccounts = getAccounts(argv.name, argv.masterPassword);
+
+    if (typeof fetchedAccounts === 'undefined' || !fetchedAccounts.length) {
+      console.log('Account not found!\n');
+    } else {
+      let message = '1 Account Found!\n';
+      if (fetchedAccounts.length > 1) message = `${fetchedAccounts.length} Accounts found!\n`;
+      console.log(message);
+      fetchedAccounts.map(fetchedAccount => console.log(`Name: ${fetchedAccount.name}\nUsername: ${fetchedAccount.username}\nPassword: ${fetchedAccount.password}\n`));
+    }
+  } catch(e){
+    console.log('Unable to fetch account!\n');
+  }
+
 }
-	} else if (command === 'get') {
-		try {
-		var fetchedAccount = getAccount(argv.name,argv.masterPassword);
-
-		if(typeof fetchedAccount === 'undefined'){
-			console.log('Account not found!');
-		} else {
-			console.log('Account found!');
-			console.log(fetchedAccount);
-		}
-	} catch(e){
-		console.log('Unable to fetch account!');
-	}
-
-}
-
-
-
-
-
-
-
-
