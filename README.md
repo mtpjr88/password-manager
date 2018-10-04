@@ -33,4 +33,4 @@ git push -u origin branch-name-you-just-created
 Go into the forked repo you just pushed and click
 compare and make a PR
 # step 6
-Wait for it to get reviewd and merged!
+Wait for it to get reviewed and merged!
