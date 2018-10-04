@@ -8,4 +8,21 @@ Node-persist: Version 0.0.6
 
 Yargs: Version 3.15.0
 
-This program is to be fully used in the terminal, however I am in the process of building a native or web UI that is more user friendly.
+I am open to any Contributions.
+# step
+fork this repo
+# step 2
+create a branch
+# step 3
+make some code changes
+# step 4
+commit and push your changes with
+```bash
+git commit -m "your commit message"
+git push -u origin branch-name-you-just-created
+```
+# step 5
+go into the forked repo you just pushed and click
+compare and make a PR
+# step 6
+wait for it to get reviewd and merged!
