@@ -14,7 +14,7 @@ I am open to any Contributions.
 # step 1
 Fork this repo and clone the forked repo 
 ```bash
-  git clone the-forked-repo
+  git clone the-name-of-forked-repo
 ```
 # step 2
 Create a branch
